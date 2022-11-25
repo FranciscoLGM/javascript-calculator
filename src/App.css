@@ -16,6 +16,11 @@ body {
   background-color: #e9ecef;
 }
 
+.keys {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
 article {
   display: flex;
   justify-content: center;
@@ -25,34 +30,38 @@ article {
   text-align: center;
   border-radius: 45%;
   margin: 0.2rem;
-  background-color: #e9ecef;
+  background-color: #dee2e6;
   color: #212529;
   cursor: pointer;
 }
 
 article:hover {
-  background-color: wheat;
+  background-color: #e9ecef;
 }
 
 #clear {
-  background-color: #e3feda;
-  width: 160px;
-  border-radius: 20%;
+  background-color: lemonchiffon;
+  /* width: 160px;
+  border-radius: 20%; */
 }
-#parentesis,
-#percentage,
+#root3,
+#module,
 #divide,
 #multiply,
 #subtract,
 #add {
-  background-color: #d6f8fb;
+  background-color: lightcyan;
 }
 #equals {
-  background-color: powderblue;
-  width: 160px;
-  border-radius: 20%;
+  background-color: lavender;
+  /* width: 160px;
+  border-radius: 20%; */
 }
 
 .delete {
   width: 30%;
+}
+
+a {
+  text-decoration: none;
 }

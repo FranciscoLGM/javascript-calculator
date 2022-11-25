@@ -1,133 +1,166 @@
 import { useState } from "react";
+import Mexp from "math-expression-evaluator";
 import "./App.css";
-// import del from "./images/delete-left.svg";
+import keys from "./data/calculatorKeys.json";
 
 function App() {
-  const [display, setDisplay] = useState("0");
-  const [result, setResult] = useState("");
+  const [result, setResult] = useState(0);
+  const [expression, setExpression] = useState("");
+  const [currentValue, setCurrentValue] = useState("");
 
-  const handleNumber = (event) => {
-    const number = event.target.textContent;
-    if (display === "0") {
-      setDisplay(number);
+  const operators = [" * ", " + ", " / "];
+
+  const handleDisplay = (value) => {
+    if (operators.includes(value) && expression === "") {
+      return;
+    }
+    // handles the decimal point
+    else if (value === ".") {
+      // 1. split the expression since operators have spaces around them to make it easier
+      const arrValue = currentValue.split(" ");
+      // 2. check if the last element in the array has a decimal value
+      const lastValueHasDecimal =
+        arrValue[arrValue.length - 1].indexOf(".") > -1 && value === ".";
+      // 3 . if it has a decimal value return the previous expression, else return the epression+value
+      setCurrentValue(
+        lastValueHasDecimal ? currentValue : currentValue.concat(value)
+      );
+      setExpression(
+        lastValueHasDecimal ? expression : expression.concat(value)
+      );
+      return;
+    }
+    // handles the multiple zeros bug
+    else if (value === "0") {
+      const arrValue = currentValue.split("");
+      if (arrValue.length === 1 && arrValue[0] === "0") {
+        return;
+      }
+    }
+    if (operators.includes(currentValue) && !operators.includes(value)) {
+      setCurrentValue(currentValue.replace(currentValue, value));
+      setExpression(expression.concat(value));
+      return;
+    }
+    if (operators.includes(value)) {
+      setCurrentValue(value);
     } else {
-      setDisplay(display + number);
-      setResult(eval(display + number));
+      setCurrentValue(currentValue.concat(value));
+    }
+
+    setExpression(expression.concat(value));
+
+    // makes sure to append a number after the equal to sign so we can continue with the calculation
+    if (expression.includes("=")) {
+      if (/[0-9]/.test(value)) {
+        setExpression(value);
+        setResult(0);
+        setCurrentValue(value);
+      } else {
+        setExpression(result + value);
+        setResult(0);
+        setCurrentValue(value);
+      }
     }
   };
 
-  const handleOperator = (event) => {
-    const operator = event.target.textContent;
-    if (operator === "x") {
-      setDisplay(`${display}  ${"*"} `);
-    } else if (operator === "÷") {
-      setDisplay(`${display}  ${"/"} `);
-    } else {
-      setDisplay(`${display}  ${operator} `);
+  const handleCalculate = () => {
+    if (expression === "") {
+      return;
     }
+    const filteredExpression = expression
+      .replace(/\s+/g, "")
+      .match(/(\*|\+|\/|-)?(\.|-)?(\w+)?(\d+)/g)
+      .join("");
+    // used the math-expression-evaluator library instead of eval since eval is unsafe
+    let result;
+    try {
+      result = Mexp.eval(filteredExpression);
+      // set the results to 4 decimal places if it contains a decimal point
+      if (result.toString().includes(".")) {
+        if (result.toString().split(".")[1].length > 4)
+          result = parseFloat(result).toFixed(4);
+      }
+    } catch (error) {
+      result = "Error de formato";
+      setExpression("");
+    }
+
+    // update "result" with the result of evaluation
+    setCurrentValue("");
+    setResult(result);
+    setExpression((prev) => `${prev}  = ${result}`);
   };
 
-  const handleEqual = () => {
-    setDisplay(eval(display));
-    setResult("");
-  };
-
-  const handleDecimal = () => {
-    const array = display.split(" ");
-    const lastElement = array[array.length - 1];
-
-    if (!lastElement.includes(".")) {
-      setDisplay(`${display}.`);
-    }
+  const handleClearAll = () => {
+    setResult(0);
+    setExpression("");
+    setCurrentValue("");
   };
 
   const handleClear = () => {
-    setDisplay("0");
-    setResult("");
+    setExpression((prev) => prev.split("").slice(0, -1).join(""));
+    setResult(0);
+    setCurrentValue((prev) => prev.split("").slice(0, -1).join(""));
+    setResult(0);
   };
 
   return (
     <div className="App">
       <main>
         <div className="container">
-          <div className="calculator d-flex flex-column justify-content-center align-items-center vh-100">
+          <div className="calculator d-flex flex-column justify-content-center align-items-center mt-2 pt-1">
             <div className="calculator-container bg-light p-3 rounded">
               <section className="display mb-3 rounded d-flex flex-column justify-content-end align-items-end p-1 text-dark fs-2">
-                <div id="display" className="fs-3">
-                  {display}
+                <div className="fs-4 text-info">{expression}</div>
+                <div id="display" className="text-secondary">
+                  {currentValue === "" ? result : currentValue}
                 </div>
-                <div>{result}</div>
               </section>
-              <section className="d-flex justify-content-end">
-                <article id="clear" onClick={handleClear}>
+
+              <section className="keys">
+                <article id="clear" onClick={handleClearAll}>
                   AC
                 </article>
-                {/* <article id="parentesis">( )</article> */}
-                <article id="percentage" onClick={handleOperator}>
-                  %
+                {keys?.map((key) => (
+                  <article
+                    id={key.id}
+                    key={key.id}
+                    onClick={() => handleDisplay(key.value)}
+                  >
+                    {key.value === " / "
+                      ? "÷"
+                      : key.value === " Mod "
+                      ? "%"
+                      : key.value === " root "
+                      ? "√"
+                      : key.value === " * "
+                      ? "x"
+                      : key.value}
+                  </article>
+                ))}
+                <article id="cleanOneByOne" onClick={handleClear}>
+                  <i class="fa-solid fa-delete-left"></i>
                 </article>
-                <article id="divide" onClick={handleOperator}>
-                  ÷
-                </article>
-              </section>
-              <section className="d-flex">
-                <article id="seven" onClick={handleNumber}>
-                  7
-                </article>
-                <article id="eight" onClick={handleNumber}>
-                  8
-                </article>
-                <article id="nine" onClick={handleNumber}>
-                  9
-                </article>
-                <article id="multiply" onClick={handleOperator}>
-                  x
-                </article>
-              </section>
-              <section className="d-flex">
-                <article id="four" onClick={handleNumber}>
-                  4
-                </article>
-                <article id="five" onClick={handleNumber}>
-                  5
-                </article>
-                <article id="six" onClick={handleNumber}>
-                  6
-                </article>
-                <article id="subtract" onClick={handleOperator}>
-                  -
-                </article>
-              </section>
-              <section className="d-flex">
-                <article id="one" onClick={handleNumber}>
-                  1
-                </article>
-                <article id="two" onClick={handleNumber}>
-                  2
-                </article>
-                <article id="three" onClick={handleNumber}>
-                  3
-                </article>
-                <article id="add" onClick={handleOperator}>
-                  +
-                </article>
-              </section>
-              <section className="d-flex justify-content-end">
-                <article id="zero" onClick={handleNumber}>
-                  0
-                </article>
-                <article id="decimal" onClick={handleDecimal}>
-                  .
-                </article>
-                {/* <article id="delete">
-                  <img src={del} alt="delete buttom" className="delete" />
-                </article> */}
-                <article id="equals" onClick={handleEqual}>
+                <article id="equals" onClick={handleCalculate}>
                   =
                 </article>
               </section>
             </div>
           </div>
+          <footer className="text-center text-dark fs-6 mt-1 mb-0 pt-1">
+            <p className="mb-0">Designed and Coded with 💙 By</p>
+            <p>
+              <a
+                href="https://github.com/FranciscoLGM"
+                target="_blank"
+                rel="noreferrer noopener"
+                className="text-success"
+              >
+                FranciscoLGM
+              </a>
+            </p>
+          </footer>
         </div>
       </main>
     </div>
