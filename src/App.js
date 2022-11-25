@@ -109,7 +109,7 @@ function App() {
     <div className="App">
       <main>
         <div className="container">
-          <div className="calculator d-flex flex-column justify-content-center align-items-center mt-2 pt-1">
+          <div className="calculator d-flex flex-column justify-content-center align-items-center mt-2 pt-2">
             <div className="calculator-container bg-light p-3 rounded">
               <section className="display mb-3 rounded d-flex flex-column justify-content-end align-items-end p-1 text-dark fs-2">
                 <div className="fs-4 text-info">{expression}</div>
