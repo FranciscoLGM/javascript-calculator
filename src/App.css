@@ -30,19 +30,18 @@ article {
   text-align: center;
   border-radius: 45%;
   margin: 0.2rem;
-  background-color: #dee2e6;
+  background-color: #e9ecef;
   color: #212529;
   cursor: pointer;
 }
 
 article:hover {
-  background-color: #e9ecef;
+  /* background-color: #e9ecef; */
+  opacity: 0.7;
 }
 
 #clear {
   background-color: lemonchiffon;
-  /* width: 160px;
-  border-radius: 20%; */
 }
 #root3,
 #module,
@@ -52,10 +51,17 @@ article:hover {
 #add {
   background-color: lightcyan;
 }
+
+#root3:hover,
+#module:hover,
+#divide:hover,
+#multiply:hover,
+#subtract:hover,
+#add:hover {
+  opacity: 0.7;
+}
 #equals {
   background-color: lavender;
-  /* width: 160px;
-  border-radius: 20%; */
 }
 
 .delete {
